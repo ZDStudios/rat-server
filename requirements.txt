@@ -1,0 +1,9 @@
+flask==2.0.1
+flask-socketio==5.1.1
+python-socketio==5.5.2
+python-engineio==4.3.0
+werkzeug==2.0.1
+pyautogui==0.9.53
+pynput==1.7.6
+mss==6.1.0
+requests==2.26.0
