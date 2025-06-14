@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ZDStudios Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #2c3e50, #3498db);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .login-card {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 40px;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      width: 300px;
+    }
+
+    .login-card h2 {
+      color: #fff;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      outline: none;
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+    }
+
+    button {
+      background-color: #2980b9;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #1abc9c;
+    }
+
+    input::placeholder {
+      color: #eee;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <h2>ZDStudios Login</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="checkLogin()">Login</button>
+  </div>
+
+  <script>
+    const redirectUrl = "https://yourdestination.com"; // Change this!
+    const correctHash = "e4a357f1d24e7cb61af0868dc0dd5a40"; // MD5 hash of ZDStudiosZDStudios2013
+
+    function hashCode(str) {
+      return CryptoJS.MD5(str).toString();
+    }
+
+    function checkLogin() {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+      const hash = hashCode(username + password);
+      if (hash === correctHash) {
+        localStorage.setItem("loggedIn", "true");
+        window.location.href = redirectUrl;
+      } else {
+        alert("Invalid login.");
+      }
+    }
+
+    window.onload = function () {
+      if (localStorage.getItem("loggedIn") === "true") {
+        window.location.href = redirectUrl;
+      }
+    };
+  </script>
+</body>
+</html>
