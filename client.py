@@ -18,7 +18,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 stream_data = {}
 
 def start_server_socket():
-    HOST = '0.0.0.0'
+    HOST = '100.109.211.66'
     PORT = 5555
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST, PORT))
