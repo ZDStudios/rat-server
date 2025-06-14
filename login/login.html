@@ -3,7 +3,6 @@
 <head>
   <title>Server Login</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -95,18 +94,13 @@
   </div>
 
   <script>
-    const redirectUrl = "https://yourdestination.com"; // Replace with your real URL
-    const correctHash = "8864f6f9f1e68d889e346169558f9278"; // MD5 of ZDStudiosZDStudios2013
-
-    function hashCode(str) {
-      return CryptoJS.MD5(str).toString();
-    }
+    const redirectUrl = "https://zdstudios.github.io/rat-server/templates/dashboard.html"; // Change this to your actual destination
 
     function checkLogin() {
       const username = document.getElementById("username").value;
       const password = document.getElementById("password").value;
-      const hash = hashCode(username + password);
-      if (hash === correctHash) {
+
+      if (username === "ZDStudios" && password === "ZDStudios2013") {
         localStorage.setItem("loggedIn", "true");
         window.location.href = redirectUrl;
       } else {
