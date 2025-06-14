@@ -14,7 +14,7 @@ client_lock = threading.Lock()
 
 def start_server_socket():
     HOST = '0.0.0.0'
-    PORT = 5555
+    PORT = 5784
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST, PORT))
         s.listen()
