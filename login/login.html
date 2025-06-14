@@ -16,6 +16,7 @@
       justify-content: center;
       height: 100vh;
       margin: 0;
+      position: relative;
     }
 
     .login-card {
@@ -71,6 +72,7 @@
       cursor: pointer;
       width: 100%;
       transition: background 0.3s;
+      margin-top: 10px;
     }
 
     button:hover {
@@ -80,9 +82,27 @@
     input::placeholder {
       color: #eee;
     }
+
+    .forget-button {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 10px;
+      padding: 4px 8px;
+      background-color: rgba(255, 255, 255, 0.2);
+      border: none;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+    }
+
+    .forget-button:hover {
+      background-color: rgba(255, 255, 255, 0.4);
+    }
   </style>
 </head>
 <body>
+  <button class="forget-button" onclick="forgetLogin()">Forget Me</button>
   <div class="login-card">
     <h2>Server Login</h2>
     <input type="text" id="username" placeholder="Username">
@@ -91,10 +111,11 @@
       <span class="toggle-password" onclick="togglePassword()">👁️</span>
     </div>
     <button onclick="checkLogin()">Login</button>
+    <button id="autoLoginBtn" onclick="autoLogin()" style="display: none;">Auto Login</button>
   </div>
 
   <script>
-    const redirectUrl = "https://zdstudios.github.io/rat-server/templates/dashboard.html"; // Change this to your actual destination
+    const redirectUrl = "https://zdstudios.github.io/rat-server/templates/dashboard.html"; // replace with your actual link
 
     function checkLogin() {
       const username = document.getElementById("username").value;
@@ -108,14 +129,26 @@
       }
     }
 
+    function autoLogin() {
+      if (localStorage.getItem("loggedIn") === "true") {
+        window.location.href = redirectUrl;
+      }
+    }
+
     function togglePassword() {
       const pwdField = document.getElementById("password");
       pwdField.type = pwdField.type === "password" ? "text" : "password";
     }
 
+    function forgetLogin() {
+      localStorage.removeItem("loggedIn");
+      alert("Login cleared.");
+      document.getElementById("autoLoginBtn").style.display = "none";
+    }
+
     window.onload = function () {
       if (localStorage.getItem("loggedIn") === "true") {
-        window.location.href = redirectUrl;
+        document.getElementById("autoLoginBtn").style.display = "block";
       }
     };
   </script>
