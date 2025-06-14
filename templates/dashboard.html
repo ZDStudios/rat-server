@@ -6,17 +6,85 @@
     <title>Neon RAT Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        /* Previous CSS remains the same */
-        .stream-panel {
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            background: linear-gradient(135deg, #1f1c2c, #928dab);
+            color: #fff;
+        }
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+        .sidebar {
+            width: 250px;
+            background: rgba(0, 0, 0, 0.5);
             padding: 20px;
-            margin-top: 20px;
+            backdrop-filter: blur(8px);
+            border-right: 2px solid #4ff9ff;
+        }
+        .sidebar h2 {
+            color: #4ff9ff;
+            border-bottom: 2px solid #4ff9ff;
+            padding-bottom: 10px;
+        }
+        .main {
+            flex: 1;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(4px);
+            overflow-y: auto;
+        }
+        h1 {
+            font-size: 2em;
+            color: #f6f6f6;
+            margin-bottom: 20px;
+        }
+        .tab-buttons {
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            background: transparent;
+            color: #fff;
+            border: 2px solid #4ff9ff;
+            padding: 10px 20px;
+            margin-right: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .tab-btn.active,
+        .tab-btn:hover {
+            background: #4ff9ff;
+            color: #000;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.4s ease-in;
+        }
+        @keyframes fadeIn {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+        .panel {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #4ff9ff;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .panel h3 {
+            color: #4ff9ff;
+            margin-bottom: 15px;
         }
         #stream-display {
             width: 100%;
-            border-radius: 8px;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(79, 249, 255, 0.6);
+            margin-bottom: 15px;
             background: #000;
         }
         .stream-controls {
@@ -24,11 +92,23 @@
             gap: 10px;
             margin-top: 10px;
         }
+        .stream-controls button {
+            background: #4ff9ff;
+            border: none;
+            color: #000;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .stream-controls button:hover {
+            background: #34d6d6;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Sidebar (unchanged) -->
+        <!-- Sidebar -->
         <div class="sidebar">
             <h2>Connected Clients</h2>
             <div id="client-list"></div>
@@ -43,12 +123,12 @@
                 <button class="tab-btn" onclick="openTab('stream')">Live Stream</button>
             </div>
 
-            <!-- Control Tab (unchanged) -->
+            <!-- Control Tab -->
             <div id="control" class="tab-content active">
                 <!-- Previous content -->
             </div>
 
-            <!-- Files Tab (unchanged) -->
+            <!-- Files Tab -->
             <div id="files" class="tab-content">
                 <!-- Previous content -->
             </div>
@@ -68,7 +148,7 @@
     </div>
 
     <script>
-        // Tab management (unchanged)
+        // Tab management
         function openTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.style.display = 'none';
@@ -92,6 +172,13 @@
             const streamDisplay = document.getElementById('stream-display');
             streamDisplay.src = '';
         }
+
+        // Placeholder for client update (assumes updateClients is defined elsewhere)
+        function updateClients() {
+            // Simulated function
+        }
+
+        let selectedClient = null; // Placeholder for client selection logic
 
         // Initialize
         updateClients();
