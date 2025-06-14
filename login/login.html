@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>ZDStudios Login</title>
+  <title>Server Login</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
   <style>
@@ -26,7 +26,7 @@
       backdrop-filter: blur(10px);
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
       text-align: center;
-      width: 300px;
+      width: 320px;
     }
 
     .login-card h2 {
@@ -43,6 +43,24 @@
       outline: none;
       background: rgba(255,255,255,0.2);
       color: #fff;
+    }
+
+    .password-container {
+      position: relative;
+    }
+
+    .password-container input {
+      padding-right: 40px;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #fff;
+      font-size: 18px;
     }
 
     button {
@@ -67,15 +85,18 @@
 </head>
 <body>
   <div class="login-card">
-    <h2>ZDStudios Login</h2>
+    <h2>Server Login</h2>
     <input type="text" id="username" placeholder="Username">
-    <input type="password" id="password" placeholder="Password">
+    <div class="password-container">
+      <input type="password" id="password" placeholder="Password">
+      <span class="toggle-password" onclick="togglePassword()">👁️</span>
+    </div>
     <button onclick="checkLogin()">Login</button>
   </div>
 
   <script>
-    const redirectUrl = "https://yourdestination.com"; // Change this!
-    const correctHash = "e4a357f1d24e7cb61af0868dc0dd5a40"; // MD5 hash of ZDStudiosZDStudios2013
+    const redirectUrl = "https://yourdestination.com"; // Replace with your real URL
+    const correctHash = "8864f6f9f1e68d889e346169558f9278"; // MD5 of ZDStudiosZDStudios2013
 
     function hashCode(str) {
       return CryptoJS.MD5(str).toString();
@@ -89,8 +110,13 @@
         localStorage.setItem("loggedIn", "true");
         window.location.href = redirectUrl;
       } else {
-        alert("Invalid login.");
+        alert("Invalid username or password.");
       }
+    }
+
+    function togglePassword() {
+      const pwdField = document.getElementById("password");
+      pwdField.type = pwdField.type === "password" ? "text" : "password";
     }
 
     window.onload = function () {
