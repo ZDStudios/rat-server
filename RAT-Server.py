@@ -8,6 +8,16 @@ import subprocess
 
 app = Flask(__name__)
 
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return render_template('index.html')  # Make sure index.html is inside the 'templates' folder
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
+
+
 # Store connected clients
 clients = {}
 client_lock = threading.Lock()
@@ -59,3 +69,7 @@ def send_input():
 if __name__ == '__main__':
     threading.Thread(target=start_server_socket, daemon=True).start()
     app.run(host='0.0.0.0', port=5000)
+    
+app = Flask(__name__)
+ 
+app = Flask(__name__)
