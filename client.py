@@ -5,7 +5,7 @@ import pyautogui
 import keyring
 import shutil
 
-HOST = 'SERVER_IP'  # Replace with your server's IP
+HOST = '100.109.211.66'  # Replace with your server's IP
 PORT = 5555
 
 def handle_server_connection():
